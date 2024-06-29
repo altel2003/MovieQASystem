@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Movie Knowledge Graph Q&A</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            position: absolute;
+            background-color: #b8ebe6;
+            background-image:
+                radial-gradient(at 47% 33%, hsl(160.75, 88%, 65%) 0, transparent 59%),
+                radial-gradient(at 82% 65%, hsl(201.71, 85%, 64%) 0, transparent 55%);
+                }
+
+        .chat-container {
+            width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(12px) saturate(82%);
+            -webkit-backdrop-filter: blur(12px) saturate(82%);
+            background-color: rgba(255, 255, 255, 0.44);
+            border-radius: 12px;
+            border: 1px solid rgba(209, 213, 219, 0.3);
+        }
+        .chat-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 400px;
+            overflow-y: scroll;
+            background: white;
+        }
+        .input-box {
+            margin-top: 10px;
+        }
+        .message {
+            padding: 5px;
+            margin: 5px 0;
+        }
+        .user-message {
+            text-align: right;
+            background-color: #e1ffc7;
+        }
+        .bot-message {
+            text-align: left;
+            background-color: #f1f1f1;
+        }
+        #send-button {
+            margin-left: 10px;
+            padding: 5px 10px;
+            background-color: #62dc66;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #send-button:hover {
+            background-color: #45a07f;
+        }
+        #left-gif {
+            width: 300px;
+            height: 300px;
+            background-size: cover;
+            position: relative;
+            bottom: .625rem;
+            background-image: url( {{url_for('static', filename = 'Link.gif')}} );
+        }  
+        #right-gif {
+            width: 300px;
+            height: 300px;
+            background-size: cover;
+            position: relative;          
+            bottom: -19.625rem;
+            background-image: url({{url_for('static', filename = 'Q.gif')}});
+        }  
+
+    </style>
+</head>
+<body>
+    <div id = "left-gif"></div>
+    <div class="chat-container">
+        <h1>欢迎来到电影知识图谱问答系统</h1>
+        <div class="chat-box" id="chat-box">
+            <div class="bot-message">你好，我的朋友，今天你想了解什么电影呢？</div>
+        </div>
+        <div class="input-box">
+            <input type="text" id="query" placeholder="Enter your query">
+            <button onclick="sendQuery()" id = "send-button">Send</button>
+        </div>
+    </div>
+    <div id = "right-gif"></div>
+
+    <script>
+        async function sendQuery() {
+            const queryInput = document.getElementById('query');
+            const query = queryInput.value;
+            queryInput.value = '';
+
+            if (query.trim() === '') {
+                return;
+            }
+
+            addMessage(query, 'user-message');
+
+            const response = await fetch('/query', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({query: query })
+            });
+
+            const result = await response.json();
+            console.log(result);
+            console.log(typeof result);
+            addMessage(result.result, 'bot-message');
+        }
+
+        function addMessage(text, className) {
+            const chatBox = document.getElementById('chat-box');
+            const message = document.createElement('div');
+            message.className = `message ${className}`;
+            message.textContent = text;
+            chatBox.appendChild(message);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
